@@ -168,14 +168,18 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Library Include="SDL2\SDL\SDL2.lib" />
     <Library Include="SDL2\SDL\SDL2main.lib" />
     <Library Include="SDL2\SDL\SDL2test.lib" />
     <Library Include="SDL2\SDL\SDL2_image.lib" />
     <Library Include="SDL2\SDL\SDL2_mixer.lib" />
+    <Library Include="SDL2\SDL\SDL2_ttf.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Constants.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
