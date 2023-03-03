@@ -20,7 +20,6 @@ void KeyboardInput(SDL_Keycode keyCode, KeyData* keyData, bool keyDown);
 void Render(GameData* gameData);
 void Update(GameData* gameData);
 
-
 int main(int argc, char* args[])
 {
 	SDL_Window* window = nullptr;
@@ -33,7 +32,7 @@ int main(int argc, char* args[])
 	}
 
 	KeyData keyData;
-	gameData.gameScreenManager = new GameScreenManager(gameData.renderer, SCREEN_LEVEL1);
+	gameData.gameScreenManager = new GameScreenManager(gameData.renderer, SCREEN_MENU);
 	gameData.previousTime = SDL_GetTicks();
 	while (!gameData.exit)
 	{
@@ -104,6 +103,15 @@ void Update(GameData* gameData)
 		gameData->gPressed = false;
 	}
 
+	if (gameData->keyData.pDown)
+	{
+		gameData->gameScreenManager->ChangeScreen(SCREEN_LEVEL1);
+	}
+	else if (gameData->keyData.oDown)
+	{
+		gameData->gameScreenManager->ChangeScreen(SCREEN_MENU);
+	}
+
 	gameData->gameScreenManager->Update((float)(newTime - gameData->previousTime) / 1000.0f, gameData);
 	gameData->previousTime = SDL_GetTicks();
 }
@@ -113,9 +121,8 @@ void Render(GameData* gameData)
 	SDL_SetRenderDrawColor(gameData->renderer, 0x00, 0x00, 0xAA, 0xFF);
 	SDL_RenderClear(gameData->renderer);
 
-	SDL_Rect renderLocation = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-
 	gameData->gameScreenManager->Render();
+
 	SDL_RenderPresent(gameData->renderer);
 }
 
@@ -156,6 +163,12 @@ void KeyboardInput(SDL_Keycode keyCode, KeyData* keyData, bool keyDown)
 		break;
 	case SDLK_g:
 		keyData->gDown = keyDown;
+		break;
+	case SDLK_p:
+		keyData->pDown = keyDown;
+		break;
+	case SDLK_o:
+		keyData->oDown = keyDown;
 		break;
 	}
 }

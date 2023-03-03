@@ -10,6 +10,9 @@ struct KeyData
 	bool qDown = false;
 	bool fDown = false;
 	bool gDown = false;
+
+	bool pDown = false;
+	bool oDown = false;
 };
 
 struct GameData
