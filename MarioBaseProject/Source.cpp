@@ -5,44 +5,20 @@
 #include <SDL_mixer.h>
 
 #include "Constants.h"
+#include "Texture.h"
+#include "Commons.h"
+#include "GameScreenManager.h"
+#include "GameData.h"
+
 #include <iostream>
 #include <string>
 
-
-struct KeyData
-{
-	bool aDown = false;
-	bool dDown = false;
-	bool qDown = false;
-	bool fDown = false;
-	bool gDown = false;
-};
-
-struct GameData
-{
-	SDL_Renderer* renderer = nullptr;
-	SDL_Texture* texture = nullptr;
-
-	bool exit = false;
-
-	float angle = 0;
-	Uint32 previousTime = 0;
-
-	bool fPressed = false;
-	bool gPressed = false;
-
-	SDL_RendererFlip flipHoriz = SDL_FLIP_NONE;
-	SDL_RendererFlip flipVert = SDL_FLIP_NONE;
-};
-
-bool InitSDL(SDL_Window*& window, SDL_Renderer*& renderer, SDL_Texture*& texture);
-void CloseSDL(SDL_Window*& window, SDL_Renderer*& renderer, SDL_Texture*& texture);
-void PollEvents(SDL_Event& e, KeyData* keyData, GameData* gameData);
+bool InitSDL(SDL_Window*& window, SDL_Renderer*& renderer);
+void CloseSDL(SDL_Window*& window, GameData* gameData);
+void PollEvents(GameData* gameData);
 void KeyboardInput(SDL_Keycode keyCode, KeyData* keyData, bool keyDown);
 void Render(GameData* gameData);
-bool LoadTextureFromFile(SDL_Renderer*& renderer, SDL_Texture*& texture, std::string path);
-void FreeTexture(SDL_Texture*& texture);
-void Update(KeyData* keyData, GameData* gameData);
+void Update(GameData* gameData);
 
 
 int main(int argc, char* args[])
@@ -51,47 +27,48 @@ int main(int argc, char* args[])
 
 	GameData gameData;
 
-	if (!InitSDL(window, gameData.renderer, gameData.texture))
+	if (!InitSDL(window, gameData.renderer))
 	{
 		return 1;
 	}
 
 	KeyData keyData;
+	gameData.gameScreenManager = new GameScreenManager(gameData.renderer, SCREEN_LEVEL1);
 	gameData.previousTime = SDL_GetTicks();
-	SDL_Event e;
 	while (!gameData.exit)
 	{
-		PollEvents(e, &keyData, &gameData);
-		Update(&keyData, &gameData);
+		PollEvents(&gameData);
+		Update(&gameData);
 		Render(&gameData);
 	}
 
-	CloseSDL(window, gameData.renderer, gameData.texture);
+	CloseSDL(window, &gameData);
 
 	return 0;
 }
 
-void Update(KeyData* keyData, GameData* gameData)
+void Update(GameData* gameData)
 {
+	Uint32 newTime = SDL_GetTicks();
 	int deltaTime = SDL_GetTicks() - gameData->previousTime;
 
 	float speed = 50;
 
-	if (keyData->aDown)
+	if (gameData->keyData.aDown)
 	{
 		gameData->angle -= speed * deltaTime / 1000.0f;
 	}
-	if (keyData->dDown)
+	if (gameData->keyData.dDown)
 	{
 		gameData->angle += speed * deltaTime / 1000.0f;
 	}
 
-	if (keyData->qDown)
+	if (gameData->keyData.qDown)
 	{
 		gameData->exit = true;
 	}
 
-	if (keyData->fDown && !gameData->fPressed)
+	if (gameData->keyData.fDown && !gameData->fPressed)
 	{
 		if (gameData->flipHoriz == SDL_FLIP_NONE)
 		{
@@ -104,12 +81,12 @@ void Update(KeyData* keyData, GameData* gameData)
 		
 		gameData->fPressed = true;
 	}
-	else if(!keyData->fDown && gameData->fPressed)
+	else if(!gameData->keyData.fDown && gameData->fPressed)
 	{
 		gameData->fPressed = false;
 	}
 
-	if (keyData->gDown && !gameData->gPressed)
+	if (gameData->keyData.gDown && !gameData->gPressed)
 	{
 		if (gameData->flipVert == SDL_FLIP_NONE)
 		{
@@ -122,11 +99,12 @@ void Update(KeyData* keyData, GameData* gameData)
 
 		gameData->gPressed = true;
 	}
-	else if (!keyData->gDown && gameData->gPressed)
+	else if (!gameData->keyData.gDown && gameData->gPressed)
 	{
 		gameData->gPressed = false;
 	}
 
+	gameData->gameScreenManager->Update((float)(newTime - gameData->previousTime) / 1000.0f, gameData);
 	gameData->previousTime = SDL_GetTicks();
 }
 
@@ -137,55 +115,24 @@ void Render(GameData* gameData)
 
 	SDL_Rect renderLocation = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
-	SDL_RenderCopyEx(gameData->renderer, gameData->texture, NULL, &renderLocation, gameData->angle, NULL, (SDL_RendererFlip) (gameData->flipHoriz | gameData->flipVert));
+	gameData->gameScreenManager->Render();
 	SDL_RenderPresent(gameData->renderer);
 }
 
-bool LoadTextureFromFile(SDL_Renderer*& renderer, SDL_Texture*& texture, std::string path)
+void PollEvents(GameData* gameData)
 {
-	FreeTexture(texture);
-
-	SDL_Surface* surface = IMG_Load(path.c_str());
-	if (surface == nullptr)
+	while (SDL_PollEvent(&gameData->e) != 0)
 	{
-		std::cout << "Unable to load image and create surface, image path: " << path << ". Error: " << IMG_GetError();
-		return false;
-	}
-
-	texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if (texture == nullptr)
-	{
-		std::cout << "Unable to create texture from surface, image path:  " << path << ". Error: " << IMG_GetError();
-		return false;
-	}
-
-	SDL_FreeSurface(surface);
-	return true;
-}
-
-void FreeTexture(SDL_Texture*& texture)
-{
-	if (texture != nullptr)
-	{
-		SDL_DestroyTexture(texture);
-		texture = nullptr;
-	}
-}
-
-void PollEvents(SDL_Event& e, KeyData* keyData, GameData* gameData)
-{
-	while (SDL_PollEvent(&e) != 0)
-	{
-		switch (e.type)
+		switch (gameData->e.type)
 		{
 		case SDL_QUIT:
 			gameData->exit = true;
 			break;
 		case SDL_KEYDOWN:
-			KeyboardInput(e.key.keysym.sym, keyData, true);
+			KeyboardInput(gameData->e.key.keysym.sym, &gameData->keyData, true);
 			break;
 		case SDL_KEYUP:
-			KeyboardInput(e.key.keysym.sym, keyData, false);
+			KeyboardInput(gameData->e.key.keysym.sym, &gameData->keyData, false);
 			break;
 		}
 	}
@@ -213,7 +160,7 @@ void KeyboardInput(SDL_Keycode keyCode, KeyData* keyData, bool keyDown)
 	}
 }
 
-bool InitSDL(SDL_Window*& window, SDL_Renderer*& renderer, SDL_Texture*& texture)
+bool InitSDL(SDL_Window*& window, SDL_Renderer*& renderer)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -248,23 +195,19 @@ bool InitSDL(SDL_Window*& window, SDL_Renderer*& renderer, SDL_Texture*& texture
 		return false;
 	}
 
-	if (!LoadTextureFromFile(renderer, texture, "Assets/test.bmp"))
-	{
-		return false;
-	}
-
 	return true;
 }
 
-void CloseSDL(SDL_Window*& window, SDL_Renderer*& renderer, SDL_Texture*& texture)
+void CloseSDL(SDL_Window*& window, GameData* gameData)
 {
 	SDL_DestroyWindow(window);
 	window = nullptr;
 	
-	FreeTexture(texture);
+	delete gameData->gameScreenManager;
+	gameData->gameScreenManager = nullptr;
 
-	SDL_DestroyRenderer(renderer);
-	renderer = nullptr;
+	SDL_DestroyRenderer(gameData->renderer);
+	gameData->renderer = nullptr;
 
 	IMG_Quit();
 	SDL_Quit();
