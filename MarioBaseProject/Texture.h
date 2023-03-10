@@ -21,7 +21,7 @@ public:
 	~Texture();
 
 	bool LoadFromFile(std::string path);
-	void Render(Vector2 new_position, SDL_RendererFlip flip, double angle = 0.0);
+	void Render(Vector2 newPosition, SDL_RendererFlip flip, double angle = 0.0);
 
 	int GetWidth() {return m_width;}
 	int GetHeight() { return m_height; }

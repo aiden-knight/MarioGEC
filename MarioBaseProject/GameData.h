@@ -13,6 +13,8 @@ struct KeyData
 
 	bool pDown = false;
 	bool oDown = false;
+
+	bool wDown = false;
 };
 
 struct GameData

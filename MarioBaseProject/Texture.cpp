@@ -52,8 +52,8 @@ void Texture::Free()
 	}
 }
 
-void Texture::Render(Vector2 new_position, SDL_RendererFlip flip, double angle)
+void Texture::Render(Vector2 newPosition, SDL_RendererFlip flip, double angle)
 {
-	SDL_Rect renderLocation = { new_position.x, new_position.y, m_width, m_height };
+	SDL_Rect renderLocation = { newPosition.x, newPosition.y, m_width, m_height };
 	SDL_RenderCopyEx(m_renderer, m_texture, nullptr, &renderLocation, angle, nullptr, flip);
 }

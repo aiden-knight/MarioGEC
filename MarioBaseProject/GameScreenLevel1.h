@@ -5,11 +5,13 @@
 #include "GameScreen.h"
 
 class Texture;
+class Character;
 
 class GameScreenLevel1 : GameScreen
 {
 private:
 	Texture* m_backgroundTexture;
+	Character* m_character;
 
 	bool SetUPLevel();
 	float angle;
