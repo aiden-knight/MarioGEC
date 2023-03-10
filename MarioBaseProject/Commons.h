@@ -18,6 +18,22 @@ struct Vector2
 	}
 };
 
+struct Rect
+{
+	float x;
+	float y;
+	float width;
+	float height;
+
+	Rect(float x, float y, float width, float height)
+	{
+		this->x = x;
+		this->y = y;
+		this->width = width;
+		this->height = height;
+	}
+};
+
 enum SCREENS
 {
 	NULL_SCREEN,

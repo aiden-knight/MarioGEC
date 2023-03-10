@@ -14,7 +14,7 @@ Character::Character(SDL_Renderer* renderer, std::string imagePath, Vector2 star
 		std::cout << "Failed to load Character texture!" << std::endl;
 	}
 
-	m_facingDirection = FACING_RIGHT;
+	m_facingDirection = FACING_LEFT;
 }
 
 Character::~Character()
@@ -26,7 +26,7 @@ Character::~Character()
 
 void Character::Render()
 {
-	if (m_facingDirection == FACING_RIGHT)
+	if (m_facingDirection == FACING_LEFT)
 	{
 		m_texture->Render(m_position, SDL_FLIP_NONE);
 	}

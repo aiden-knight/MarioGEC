@@ -173,6 +173,15 @@ void KeyboardInput(SDL_Keycode keyCode, KeyData* keyData, bool keyDown)
 	case SDLK_w:
 		keyData->wDown = keyDown;
 		break;
+	case SDLK_UP:
+		keyData->upDown = keyDown;
+		break;
+	case SDLK_LEFT:
+		keyData->leftDown = keyDown;
+		break;
+	case SDLK_RIGHT:
+		keyData->rightDown = keyDown;
+		break;
 	}
 }
 

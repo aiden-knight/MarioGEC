@@ -19,9 +19,6 @@ protected:
 	bool m_jumping;
 	bool m_canJump;
 	float m_jumpForce;
-
-	virtual void Jump();
-private:
 	FACING m_facingDirection;
 public:
 	Character(SDL_Renderer* renderer, std::string imagePath, Vector2 startPosition);

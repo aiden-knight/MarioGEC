@@ -6,12 +6,14 @@
 
 class Texture;
 class Character;
+class CharacterMario;
 
 class GameScreenLevel1 : GameScreen
 {
 private:
 	Texture* m_backgroundTexture;
-	Character* m_character;
+	Character* m_luigi;
+	CharacterMario* m_mario;
 
 	bool SetUPLevel();
 	float angle;
